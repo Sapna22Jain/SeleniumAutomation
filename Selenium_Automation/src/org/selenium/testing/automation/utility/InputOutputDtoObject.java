@@ -1,28 +1,55 @@
-package org.testing_Automation.utility;
+/**
+ *  Copyright ©  2017   Intellect Design Arena Ltd. All rights reserved.
+ *
+ *  These materials are confidential and proprietary to Intellect Design Arena Ltd.
+ *  and no part of these materials should be reproduced, published, transmitted or
+ *  distributed  in any form or by any means, electronic, mechanical, photocopying,
+ *  recording or otherwise, or stored in any information storage or retrieval system
+ *  of any nature nor should the materials be disclosed to third parties or used in
+ *  any other manner for which this is not authorized, without the prior express
+ *  written authorization of Intellect Design Arena Ltd.
+ *
+ * <p>Title       				: InputOutputDtoObject</p>
+ * <p>Description 				: This is the DTO object class for the configuration</p>
+ * <p>SCF NO      				: 1.0</p>
+ * <p>Copyright   				: Copyright © 2017 Intellect Design Arena Ltd. All rights reserved.</p>
+ * <p>Company     				: Intellect Design Arena Ltd</p>
+ * <p>Date of Creation 			: 15-Sep-2017</p>
+ * 
+ * @author XXX
+ * @version 1.0
+ * 
+ * <p>--------------------------------------------------------------------------------------</p>
+ * <p>MODIFICATION HISTORY:</p>
+ * <p>--------------------------------------------------------------------------------------</p>
+ * <p>SERIAL	AUTHOR				DATE					SCF				DESCRIPTION		</p>
+ * <p>--------------------------------------------------------------------------------------</p>
+ *   1        	RAVI/SAPNA      	15-SEP-2017				                 Initial Version
+ *
+ **/
+
+package org.selenium.testing.automation.utility;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 // This class contains all the getters and setters for excel sheet 1 which contains primary details
-public class InputOutputDaoObject  {
+public class InputOutputDtoObject  {
 
-	ArrayList<Object> arrInputData = null;
-	String   sTestCaseId =           null;
-	String   sMainEntityName =   	 null;
-	String   sChildEntityName =      null;
-	String   sMenuEntityName =       null;
-	String   sSubMenuEntityName =    null;
-	String   sUserName =             null;
-	String   sOperation =            null;
-	boolean  bOperationStatus =      false;
-	String   sOperationMessage =     null;
-	String   primaryKey =            null;
-	String   tabToSwitch =           null;
-	ArrayList<String> sNavigationEntityName = null;
+	private ArrayList<Object> arrInputData;
+	private String sTestCaseId;
+	private String sMainEntityName;
+	private String sChildEntityName;
+	private String sMenuEntityName;
+	private String sUserName;
+	private String sOperation;
+	private boolean bOperationStatus;
+	private String sOperationMessage;
+	private String primaryKey;
+	private String tabToSwitch;
+	private ArrayList<String> sNavigationEntityName;
 	
 
 	public String toString(){
-		StringBuffer buff = new StringBuffer();
-		
+		StringBuffer buff = new StringBuffer();		
 		buff.append("sTestCaseId =").append(sTestCaseId).append("|")
 		.append("sUserName =").append(sUserName).append("|")
 		.append("sMenuEntityName =").append(sMenuEntityName).append("|")
@@ -36,7 +63,7 @@ public class InputOutputDaoObject  {
 		this.sTestCaseId = sTestCaseId;
 	}
 
-	public InputOutputDaoObject(){
+	public InputOutputDtoObject(){
 		arrInputData = new ArrayList<Object>();
 		
 	}
@@ -82,11 +109,7 @@ public class InputOutputDaoObject  {
 		sMenuEntityName = menuEntityName;
 	}
 	
-	public void setSubMenuEntityName(String subMenuEntityName) {
-		sSubMenuEntityName = subMenuEntityName;
-		
-	}
-
+	
 	public String getTestCaseId() {
 		return sTestCaseId;
 	}
