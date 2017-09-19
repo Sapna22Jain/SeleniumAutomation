@@ -3,7 +3,7 @@
 <suite name="Suite">
   <test name="Test">
     <classes>
-      <class name="org.Trade_Automation.driver.Driver_s"/>
+      <class name="org.selenium.testing.automation.driver.StartSeleniumTesting"/>
     </classes>
   </test> <!-- Test -->
 </suite> <!-- Suite -->
