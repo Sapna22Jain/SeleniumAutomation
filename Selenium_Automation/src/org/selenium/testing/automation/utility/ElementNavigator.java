@@ -9,8 +9,8 @@
  *  any other manner for which this is not authorized, without the prior express
  *  written authorization of Intellect Design Arena Ltd.
  *
- * <p>Title       				: StartExecution</p>
- * <p>Description 				: This is the utility class to get the element</p>
+ * <p>Title       				: ElementNavigator</p>
+ * <p>Description 				: This is the class to get the element</p>
  * <p>SCF NO      				: 1.0</p>
  * <p>Copyright   				: Copyright © 2017 Intellect Design Arena Ltd. All rights reserved.</p>
  * <p>Company     				: Intellect Design Arena Ltd</p>
@@ -35,25 +35,27 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.StringTokenizer;
 
-
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.Select;
 
-import atu.testrecorder.ATUTestRecorder;
+//import atu.testrecorder.ATUTestRecorder;
 
 public class ElementNavigator {
 
-	private static WebDriver driver = null;
-	static ATUTestRecorder recorder;
+	private static WebDriver driver;
+	//static ATUTestRecorder recorder;
 	private static Logger log = Logger.getLogger(ElementNavigator.class);
 
 	/**
-	 * The constructore gets the Driver object from the hashmap to find elements
+	 * The constructor gets the Driver object from the hashmap to find elements
 	 * 
 	 * @param mapIni
 	 */
@@ -212,11 +214,11 @@ public class ElementNavigator {
 	 */
 	public void selectValue(WebElement element, String sInputValues) throws InterruptedException {
 		if (log.isDebugEnabled())
-			log.debug(" In selectValue sInputValues:::: " + element);
+			log.debug("Entering In selectValue sInputValues:::: " + element);
 		Select dropdown = new Select(element);
 		dropdown.selectByVisibleText(sInputValues);
 		if (log.isDebugEnabled())
-			log.debug("Value selected");
+			log.debug("Leaving Value selected");
 	}
 
 	/**
@@ -226,6 +228,7 @@ public class ElementNavigator {
 	 * @param isSleepCount
 	 */
 	public void getImages(String sMenuName, int isSleepCount) {
+		
 		if (log.isDebugEnabled())
 			log.debug("Name of the Menu is ::" + sMenuName);
 		try {
@@ -246,6 +249,8 @@ public class ElementNavigator {
 			log.fatal("Exception: ", e);
 			throw e;
 		}
+		if(log.isDebugEnabled())
+			log.debug("Leaving");
 	}
 
 	/**
@@ -258,6 +263,8 @@ public class ElementNavigator {
 	 * @throws Exception
 	 */
 	public ArrayList<String> formatRecord(String sKey, String sSplitChar) throws Exception {
+		if(log.isDebugEnabled())
+			log.debug("Entering");
 		ArrayList<String> arrKey = null;
 		try {
 			if (sKey != null && sKey.length() > 0)
@@ -266,6 +273,8 @@ public class ElementNavigator {
 			log.fatal("Exception in formatRecord: ", exe);
 			throw exe;
 		}
+		if(log.isDebugEnabled())
+			log.debug("Leaving");
 		return arrKey;
 	}
 
@@ -276,6 +285,8 @@ public class ElementNavigator {
 	 * @param parent
 	 */
 	public static void switchToModalDialog(WebDriver driver, String parent) {
+		if(log.isDebugEnabled())
+			log.debug("Entering");
 		// Switch to Modal dialog
 		if (driver.getWindowHandles().size() == 2) {
 			for (String window : driver.getWindowHandles()) {
@@ -290,6 +301,8 @@ public class ElementNavigator {
 				}
 			}
 		}
+		if(log.isDebugEnabled())
+			log.debug("Leaving");
 	}	
 
 	/**
@@ -299,6 +312,8 @@ public class ElementNavigator {
 	 * @throws InterruptedException
 	 */
 	public static void waitForWindow(WebDriver driver) throws InterruptedException {
+		if(log.isDebugEnabled())
+			log.debug("Entering");
 
 		int timecount = 1;
 		do {
@@ -309,6 +324,8 @@ public class ElementNavigator {
 				break;
 			}
 		} while (driver.getWindowHandles().size() != 2);
+		if(log.isDebugEnabled())
+			log.debug("Leaving");
 
 	}
 
@@ -320,6 +337,8 @@ public class ElementNavigator {
 	 * @param iWindowSize
 	 */
 	public static void switchToModalDialog(WebDriver driver, String parent, int iWindowSize) {
+		if(log.isDebugEnabled())
+			log.debug("Entering");
 		// Switch to Modal dialog
 		if (driver.getWindowHandles().size() == iWindowSize) {
 			for (String window : driver.getWindowHandles()) {
@@ -335,6 +354,9 @@ public class ElementNavigator {
 				}
 			}
 		}
+		
+		if(log.isDebugEnabled())
+			log.debug("Leaving");
 	}
 
 	/**
@@ -372,7 +394,182 @@ public class ElementNavigator {
 			throw e;
 
 		}
+		if(log.isDebugEnabled())
+			log.debug("Leaving");
+
+	}
+	
+	/**
+	 * Method to find the element by Id, ByName or By Xpath
+	 * 
+	 * @param findMethod
+	 * @param sEntityName
+	 * @return
+	 * @throws Exception
+	 */
+	public List<WebElement> findElements(String findMethod, String sEntityName) throws Exception {
+		if (log.isDebugEnabled())
+			log.debug("sEntityName =>" + sEntityName + " findMethod: " + findMethod);
+		List<WebElement> elementList = null;
+		try {
+			
+			//List oCheckBox = driver.findElements(By.name(sEntityName));
+			
+			if (findMethod.equalsIgnoreCase(Constants.BYNAME)) {
+				elementList = driver.findElements(By.name(sEntityName));
+			}else if (findMethod.equalsIgnoreCase(Constants.ID)) {
+				elementList = driver.findElements(By.id(sEntityName));
+			} else {
+				elementList = driver.findElements(By.xpath(sEntityName));
+			}
+			
+			while (elementList == null) {
+				Utility.wait(driver, 300);
+				elementList = findElements(findMethod, sEntityName);
+			}
+
+		} catch (org.openqa.selenium.NoSuchFrameException exe) {
+			log.fatal("Exception: ", exe);
+			throw exe;
+		} catch (Exception e) {
+			log.fatal("Exception: ", e);
+			throw e;
+		}
+		if(log.isDebugEnabled())
+			log.debug("Leaving");
+		return elementList;
+	}
+
+
+	/**
+	 * @param oCheckBox
+	 * @param pair
+	 */
+	public void clickRadioButtonOrCheckBox(List<WebElement> oCheckBox,  String pair) {	
+		if(log.isDebugEnabled())
+			log.debug("Entering");
+		
+		for (int i = 0; i < oCheckBox.size(); i++) {
+
+			String sValue = ((WebElement) oCheckBox.get(i)).getAttribute("value");
+			
+			if(log.isDebugEnabled())
+				log.debug("Value -------------" + sValue);
+
+			if (sValue.equalsIgnoreCase(pair.trim())) {
+				((WebElement) oCheckBox.get(i)).click();
+				break;
+			}
+		}
+		if(log.isDebugEnabled())
+			log.debug("Leaving");
+	}
+	
+	/**
+	 * Method to click on Tabs
+	 * @param driver
+	 * @param tcid
+	 * @param tsid
+	 * @param clickSubTabNavigation
+	 * @throws InterruptedException
+	 */
+	public void clickSubTab(String clickSubTabNavigation) throws Exception {
+		if(log.isDebugEnabled())
+			log.debug("Entering clickSubTab : " + clickSubTabNavigation + "++++++++++++++++++++++++");
+
+		try {
+		
+			if (clickSubTabNavigation!=null && clickSubTabNavigation.contains("Key Info")) {				
+				WebElement kib = driver.findElement(By.xpath("//div[@id='tabpane3']/table/tbody/tr/td[1]"));
+				if(log.isDebugEnabled())
+					log.debug(kib.getText());
+				JavascriptExecutor jee = (JavascriptExecutor) driver;
+				jee.executeScript("arguments[0].click();", kib);
+			} else {				
+				WebElement tabname = driver.findElement(By.xpath("//td[text()='" + clickSubTabNavigation + "'] "));
+				JavascriptExecutor je = (JavascriptExecutor) driver;
+				je.executeScript("arguments[0].click();", tabname);
+			}			
+			
+		} catch (Exception e) {
+			log.fatal("Exception in clickSubTab");
+			throw e;			
+		}
+		if(log.isDebugEnabled())
+			log.debug("Leaving");
 
 	}
 
+	/**
+	 * @param xPathNavigation
+	 * @throws InterruptedException
+	 */
+	public void clickOnLink(String xPathNavigation) throws InterruptedException {
+		if(log.isDebugEnabled())
+			log.debug("Entering");
+
+		try{
+			StringTokenizer xpathtokenizer = new StringTokenizer(xPathNavigation, "!");
+			while (xpathtokenizer.hasMoreTokens()) {
+				String tokenpath = xpathtokenizer.nextToken();
+				Thread.sleep(3000);
+				WebElement xpathClick = driver.findElement(By.xpath(tokenpath));			
+				if(log.isDebugEnabled())
+					log.debug("xpathClick: " + xpathClick);
+				xpathClick.click();
+				log.debug("clicked on ele--------------->>>>>>>>>>>>>>>>>");				
+			}			
+			
+		}catch (InterruptedException e) {
+			log.fatal("Exception: ",e);
+			throw e;
+		
+		}
+		if(log.isDebugEnabled())
+			log.debug("Leaving");
+
+
+	}
+
+	
+	/**
+	 * @param sFrameName
+	 */
+	public void switchToFrame(String sFrameName) {
+		if(log.isDebugEnabled())
+			log.debug("Entering");
+
+		if (StringUtils.isNotEmpty(sFrameName)) {
+			driver.switchTo().defaultContent();
+			StringTokenizer frameTokens = new StringTokenizer(sFrameName, "*");
+			while (frameTokens.hasMoreTokens()) {
+				driver.switchTo().frame(frameTokens.nextToken());
+			}
+		}
+		if(log.isDebugEnabled())
+			log.debug("Leaving");
+
+	}
+
+	/**
+	 * @param xPathNavigation
+	 */
+	public void clickOnButton(String xPathNavigation) {
+		if(log.isDebugEnabled())
+			log.debug("Entering");
+
+		//Find the button and click on it
+		WebElement tabname = driver.findElement(By.xpath(xPathNavigation));
+		JavascriptExecutor js = (JavascriptExecutor) driver;
+		js.executeScript("arguments[0].click()", tabname);
+		
+		
+		if(log.isDebugEnabled())
+			log.debug("Leaving after cluck");
+
+		
+		
+	}
+		
+	
 }

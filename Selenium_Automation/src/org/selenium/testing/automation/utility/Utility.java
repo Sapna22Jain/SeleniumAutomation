@@ -52,7 +52,6 @@ import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -60,7 +59,6 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -190,7 +188,7 @@ public class Utility {
 	 * @throws Exception
 	 */
 	public Connection getConnection() throws Exception {
-		java.sql.Connection conn = null;
+		Connection conn = null;
 		try {
 
 			Class.forName("oracle.jdbc.driver.OracleDriver");
@@ -362,7 +360,7 @@ public class Utility {
 	 * @param sTestCaseId
 	 * @return
 	 */
-	boolean isTestIdRow(Row nextRow, String sTestCaseId) throws Exception {
+	private boolean isTestIdRow(Row nextRow, String sTestCaseId) throws Exception {
 		if(log.isDebugEnabled())
 			log.debug("Inside isTestIdRow : nextRow=" + nextRow + ":sTestCaseId=" + sTestCaseId);
 		Iterator<Cell> cellIterator = nextRow.cellIterator();
@@ -553,7 +551,6 @@ public class Utility {
 		if (log.isDebugEnabled())
 			log.debug(
 					"In executeOperation Title " + driver.getTitle() + " arrEntityDao.size(): " + arrEntityDao.size());
-
 		try {
 			ElementNavigator exe = new ElementNavigator(mapIni);
 			String linkPrefix = "//*[text()='";
@@ -565,22 +562,17 @@ public class Utility {
 				if (log.isDebugEnabled())
 					log.debug("executeOperation daoObject=" + dtoObject.toString());
 
-				// Getting the menu link name from the first sheet after
-				// separating comma
+				// Getting the menu link name from the first sheet after separating comma
 				StringTokenizer menutokenizer = new StringTokenizer(dtoObject.getMainEntityName(), ",");
 
 				while (menutokenizer.hasMoreTokens()) {
 					String Link = linkPrefix + menutokenizer.nextToken() + linkSuffix;
-					// log.debug("Link:" + Link);
-
 					// Click on menu
 					LoginMenuNavigator.clickOnMenu(Link,  mapIni);
 				}
 
 				// log.debug("Now starting with the operations..");
-
 				// Switch to search frame
-
 				Utility.wait(driver, 5000);
 				driver.switchTo().defaultContent();
 				Utility.wait(driver, 300);
@@ -602,28 +594,22 @@ public class Utility {
 					if (arrdata.isEmpty()) {
 						continue;
 					}
-
 					try {
 						String sOperation = arrdata.get(2);
 						String screenshotFlag = arrdata.get(3);
 
 						HashMap<String, ArrayList> keyRecord = new HashMap();
-
-						if (log.isDebugEnabled())
-							log.debug("before populateMaintainData call " + arrdata.get(1).toString() + "and operation"
-									+ sOperation);
-
+						if (log.isDebugEnabled()){
+							log.debug("before populateMaintainData call " + arrdata.get(1).toString() + "and operation"	+ sOperation);
+						}
 						keyRecord = populateMaintainData(arrdata.get(1).toString(), sOperation);
-
 						if (log.isDebugEnabled()) {
 							log.debug(keyRecord + " keyRecord.size()" + keyRecord.size());
 							log.debug(dtoObject.getMainEntityName() + "~" + sOperation);
 						}
 
 						if (keyRecord != null && keyRecord.size() > 0) {
-
 							ArrayList arKeyRecord = keyRecord.get(arrdata.get(1).toString() + "~" + sOperation);
-
 							if (log.isDebugEnabled())
 								log.debug("Printig arKeyRecord ::" + arKeyRecord);
 
@@ -644,286 +630,113 @@ public class Utility {
 
 							if (log.isDebugEnabled())
 								log.debug("hsmMappingData is ::" + hsmMappingData);
+							
 							Iterator it = hsmMappingData.entrySet().iterator();
 							while (it.hasNext()) {
 								Map.Entry pair = (Map.Entry) it.next();
 								if (pair.getValue() != null && pair.getValue().toString().trim().length() > 0) {
 
-									if (log.isDebugEnabled())
+									if (log.isDebugEnabled()){
 										log.debug("Now inside HM loop ---------------" + pair.getKey().toString()
 												+ " = " + pair.getValue().toString());
-									ArrayList<String> separator = exe.formatRecord(pair.getKey().toString(), "~");
+									}
+									ArrayList<String> separator = exe.formatRecord(pair.getKey().toString(), "~");																		
+									String elementId = "";
+									String elementType="";
+									String findMethod = "";
+									String xPathNavigation = "";
+									String xlsValue = pair.getValue().toString().trim();
+									
+									if(separator.get(0)!=null){
+										elementId = separator.get(0).trim();
+									}
+									if(separator.get(1)!=null){
+										elementType = separator.get(1).trim();
+									}
+									if(separator.get(2)!=null){
+										findMethod = separator.get(2).trim();
+									}
+									if(separator.get(3)!=null){
+										xPathNavigation = separator.get(3).trim();
+									}									
+									
+									if(log.isDebugEnabled()){
+										log.debug("elementId: " + elementId + " elementType: "+ elementType + " findMethod: " + findMethod+ " xlsValue: "+xlsValue);
+									}
 
-									if (separator.get(1).toString().contains(Constants.RADIO_BUTTON)) {
-
-										List oCheckBox = driver.findElements(By.name(separator.get(0).trim()));
-
-										int iSize = oCheckBox.size();
-
-										for (int i = 0; i < iSize; i++) {
-
-											String sValue = ((WebElement) oCheckBox.get(i)).getAttribute("value");
-											
-											if(log.isDebugEnabled())
-												log.debug("Radio button -------------" + sValue);
-
-											if (sValue.equalsIgnoreCase(pair.getValue().toString().trim())) {
-												((WebElement) oCheckBox.get(i)).click();
-												break;
-											}
-											Thread.sleep(2000);
-
-										}
-
-									} else if (separator.get(1).toString().contains(Constants.CHECK_BOX)) {
-
-										List oCheckBox = driver.findElements(By.name(separator.get(0).trim()));										
-										if(log.isDebugEnabled()){
-											log.debug("after checkbox button" + separator.get(0));
-										}
-
-										int iSize = oCheckBox.size();
-										for (int i = 0; i < iSize; i++) {
-											String sValue = ((WebElement) oCheckBox.get(i)).getAttribute("value");
-
-											if (sValue.equalsIgnoreCase(pair.getValue().toString().trim())) {												
-												((WebElement) oCheckBox.get(i)).click();
-												break;
-											}
-											Thread.sleep(2000);
-
-										}
-
-									} else if (separator.get(1).toString().contains(Constants.DROP_DOWN)) {										
-										if(log.isDebugEnabled()){
-											log.debug("Dropdown event ..Key is :: " + separator.get(0) + " And value is :: "
-												+ pair.getValue().toString() + "entype " + separator.get(2));
-										}
-										
-										exe.selectValue(
-												exe.findElement(separator.get(2).trim(), separator.get(0).trim()),
-												pair.getValue().toString().trim());
-
-									} else if (separator.get(1).toString().contains(Constants.DIV)) {
-										
-										if(log.isDebugEnabled())
-											log.debug("div event ..Key is :: " + separator.get(0) + " And value is :: "
-												+ pair.getValue().toString() + "entype " + separator.get(2));
-										
-										String xpathNavigation = separator.get(3);
-										StringTokenizer xpathtokenizer = new StringTokenizer(xpathNavigation, "!");
-										while (xpathtokenizer.hasMoreTokens()) {
-											String tokenpath = xpathtokenizer.nextToken();
-											WebElement xpathClick = driver.findElement(By.xpath(tokenpath));
-											
-											if(log.isDebugEnabled())
-												log.debug("xpathClick: " + xpathClick);
-											xpathClick.click();
-
-											log.debug("clicked on ele--------------->>>>>>>>>>>>>>>>>");
-											Thread.sleep(5000);
-
-										}
-
-									} else if (separator.get(1).toString().contains(Constants.HYPER_LINK)) {
-										
-										if(log.isDebugEnabled()){
-											log.debug("HyperLink event ..Key is :: " + separator.get(0) + " And value is :: "
-														+ pair.getValue().toString() + "entype " + separator.get(2));
-										}
-										String xpathNavigation = separator.get(3);
-										StringTokenizer xhypertokenizer = new StringTokenizer(xpathNavigation, "!");
-										while (xhypertokenizer.hasMoreTokens()) {
-											WebElement xphyperClick = driver.findElement(By.xpath(xhypertokenizer.nextToken()));
-											Thread.sleep(5000);
-											xphyperClick.click();
-										}
-										Thread.sleep(3000);
-										
+									if (elementType!=null && elementType.contains(Constants.RADIO_BUTTON) ||elementType.contains(Constants.CHECK_BOX) ) {
+										List<WebElement> elementList = exe.findElements(findMethod, elementId);
+										exe.clickRadioButtonOrCheckBox(elementList,xlsValue);
+										Thread.sleep(2000);
+									}  else if (elementType!=null && elementType.contains(Constants.DROP_DOWN)) {										
+										exe.selectValue(exe.findElement(findMethod, elementId),xlsValue);
+									} else if (elementType!=null && elementType.contains(Constants.DIV) || elementType.contains(Constants.HYPER_LINK)) {										
+										exe.clickOnLink(xPathNavigation);										
 										//Take screenshot
-										if ("Y".equals(screenshotFlag)) {
-											log.debug("inside hyperlink screenshot capture");
+										if (elementType.contains(Constants.HYPER_LINK) && "Y".equals(screenshotFlag)) {											
 											takeScreenshot(driver, dtoObject, arrdata);
-										}
-
-									} else if (separator.get(1).toString().contains(Constants.OPEN_WINDOW)) {
-										
+										}										
+									}  else if (elementType!=null && elementType.contains(Constants.OPEN_WINDOW)) {
 										//Sleep added before getting focus on window so as to have window available for focus
 										Thread.sleep(5000);
-										focusOnWindow(driver, separator.get(3).trim());
-										
-										if(log.isDebugEnabled())
-											log.debug("driver title" + driver.getTitle());
-										
+										focusOnWindow(driver, xPathNavigation);										
 										if ("Y".equals(screenshotFlag)) {
 											log.debug("inside openwindow screenshot capture");
 											takeScreenshot(driver, dtoObject, arrdata);
 										}
-										
-										if (StringUtils.isNotEmpty(sAfterFrame))
-										{
-											driver.switchTo().defaultContent();
-											StringTokenizer aftokenizer = new StringTokenizer(sAfterFrame, "*");
-											while (aftokenizer.hasMoreTokens())
-											{	
-												driver.switchTo().frame(aftokenizer.nextToken());
-											}
-										}
-
-									} else if (separator.get(1).toString().contains(Constants.CLICK_SUB_TAB)) {
-
-										String clickSubTabNavigation = separator.get(3).trim();										
-										if(log.isDebugEnabled()){
-											log.debug("clickSubTabNavigation" + clickSubTabNavigation);
-										}
-										clickSubTab(driver, "", "", clickSubTabNavigation);
+										exe.switchToFrame(sAfterFrame);
+									} else if (elementType!=null && elementType.contains(Constants.CLICK_SUB_TAB)) {
+										String clickSubTabNavigation = xPathNavigation;										
+										exe.clickSubTab(clickSubTabNavigation);
 										Thread.sleep(2000);
-										
-									} else if (separator.get(1).toString().contains(Constants.ACTION_BUTTON)) {
-
-										if(log.isDebugEnabled()){
-											log.debug("button event ..Key is :: " + separator.get(0) + " And value is :: "
-												+ pair.getValue().toString() + "entype " + separator.get(2));
-										}
-										
-										//Get the action button xpath
-										String clickButtonNpath = separator.get(3).trim();
-										
-										//Get the before frame configured in db for the button
-										if (StringUtils.isNotEmpty(sBeforeFrame)) {
-											driver.switchTo().defaultContent();
-											StringTokenizer betokenizer = new StringTokenizer(sBeforeFrame, "*");
-											while (betokenizer.hasMoreTokens()) {
-												driver.switchTo().frame(betokenizer.nextToken());
-											}
-										}
-										
-										//Find the button and click on it
-										WebElement tabname = driver.findElement(By.xpath(clickButtonNpath));
-										JavascriptExecutor js = (JavascriptExecutor) driver;
-										js.executeScript("arguments[0].click()", tabname);
-										// tabname.click();
-										log.debug("after click of button");
-										
-										//switch to after frame
-										if (StringUtils.isNotEmpty(sAfterFrame)) {
-											driver.switchTo().defaultContent();
-											StringTokenizer aftokenizer = new StringTokenizer(sAfterFrame, "*");
-											while (aftokenizer.hasMoreTokens()) {
-												driver.switchTo().frame(aftokenizer.nextToken());
-											}
-										}
+									} else if (elementType!=null && elementType.contains(Constants.ACTION_BUTTON)) {
+										exe.switchToFrame(sBeforeFrame);	
+										exe.clickOnButton(xPathNavigation);										
+										exe.switchToFrame(sAfterFrame);
 										Thread.sleep(3000);
-										
 										//take screen shot post the click of button
 										if ("Y".equals(screenshotFlag)) {
-											log.debug("inside actionbutton screenshot capture");
 											takeScreenshot(driver, dtoObject, arrdata);
 										}
-
-									} else if (separator.get(1).toString().contains(Constants.CUSTOMIZED_OPERATION)) {
+									} else if (elementType!=null && elementType.contains(Constants.CUSTOMIZED_OPERATION)) {
 										Thread.sleep(5000);
 										log.debug("inside customized operation");
 										Operations.calling(sOperation, driver, dtoObject, arrdata);
 										Thread.sleep(2000);
-									} else if (separator.get(1).toString().contains(Constants.SWITCH_TO_MAIN_MENU)) {
+									} else if (elementType!=null && elementType.contains(Constants.SWITCH_TO_MAIN_MENU)) {
 										log.debug("inside the SWITCH_TO_MAIN_MENU");
 										Thread.sleep(2000);
 										Operations.calling(sOperation, driver, dtoObject, arrdata);
 										Thread.sleep(2000);
-									} else if (separator.get(1).toString().contains(Constants.TEXTBOX)) {
-										
-										if(log.isDebugEnabled()){
-											log.debug("text box event ..Key is :: " + separator.get(0) + " And value is :: "
-												+ pair.getValue().toString() + "entype " + separator.get(2));
-											log.debug("window is ::" + driver.getCurrentUrl());
-											log.debug("entitytype" + separator.get(2).toString());
-										}
-
-										
+									} else if (elementType!=null && elementType.contains(Constants.TEXTBOX)) {							
 										Utility.wait(driver, 300);
-										//populate the value in text box and click on it
-										String xlsValue = pair.getValue().toString().trim();
 										exe.populateTxt(exe.findElement(separator.get(2).trim(), separator.get(0).trim()),xlsValue);
 										Thread.sleep(2000);
-
-									}
-
-									else {
-										//For any other element which is not configured in DB
-										if(log.isDebugEnabled()){
-											log.debug("text box event ..Key is :: " + separator.get(0) + " And value is :: "
-												+ pair.getValue().toString() + "entype " + separator.get(2));
-											log.debug("window is ::" + driver.getCurrentUrl());
-											log.debug("entitytype" + separator.get(2).toString());
-										}
+									} else {
 										Utility.wait(driver, 300);
-										String xlsValue = pair.getValue().toString().trim();										
 										exe.populateTxt(exe.findElement(separator.get(2).trim(), separator.get(0).trim()),xlsValue);
 										Thread.sleep(2000);
 									}
-
 								}
 							}
-
 						}
-
 						//Update the second xls with test case result as PASS
 						ExcelUtils.updateExcelSheet(dtoObject, Constants.PASS, arrdata);
-
 					} catch (Exception e) {						
 						//Update the second xls with test case resul as FAIL and break for that test case id
-						
 						ExcelUtils.updateExcelSheet(dtoObject, Constants.FAIL, arrdata);
 						log.fatal("Exception: ",e);
 						break;
 					}
 				}
-
 			}
 
 		} catch (Exception e) {
 			log.fatal("Exception in executeOperation()", e);
 			throw e;
-			
-
-		}
-
-	}
-
-	/**
-	 * Method to click on Tabs
-	 * @param driver
-	 * @param tcid
-	 * @param tsid
-	 * @param tdid
-	 * @throws InterruptedException
-	 */
-	public static void clickSubTab(WebDriver driver, String tcid, String tsid, String tdid) throws Exception {
-		try {
-			if(log.isDebugEnabled())
-				log.debug("+++++++++Entering clickSubTab : " + tdid + "++++++++++++++++++++++++");
-
-			if (tdid.contains("Key Info")) {
-				
-				WebElement kib = driver.findElement(By.xpath("//div[@id='tabpane3']/table/tbody/tr/td[1]"));
-				if(log.isDebugEnabled())
-					log.debug(kib.getText());
-				JavascriptExecutor jee = (JavascriptExecutor) driver;
-				jee.executeScript("arguments[0].click();", kib);
-			} else {				
-				WebElement tabname = driver.findElement(By.xpath("//td[text()='" + tdid + "'] "));
-				JavascriptExecutor je = (JavascriptExecutor) driver;
-				je.executeScript("arguments[0].click();", tabname);
-			}
-			
-			if(log.isDebugEnabled())
-				log.debug("+++++++++++++exit clickSubTab+++++++++++++++++++");
-		} catch (Exception e) {
-			log.fatal("Exception in clickSubTab");
-			throw e;			
 		}
 	}
+
 
 	/**
 	 * Method to focus on a window for which title name is passed

@@ -9,7 +9,7 @@
  *  any other manner for which this is not authorized, without the prior express
  *  written authorization of Intellect Design Arena Ltd.
  *
- * <p>Title       				: Utilities</p>
+ * <p>Title       				: PropertiesReader</p>
  * <p>Description 				: This is the utility class related to reading the property file</p>
  * <p>SCF NO      				: 1.0</p>
  * <p>Copyright   				: Copyright © 2017 Intellect Design Arena Ltd. All rights reserved.</p>
@@ -35,18 +35,13 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
-import org.openqa.selenium.WebDriver;
 
 public class PropertiesReader
 {
 	private static Logger log = Logger.getLogger(PropertiesReader.class);
-	WebDriver driver =null;
 	public static String configpath	= System.getProperty("user.dir") + "\\Config\\config.properties";
 
-	public PropertiesReader(WebDriver driver)
-	{
-		this.driver = driver;
-	}
+	
 
 	
 	/**
@@ -112,6 +107,8 @@ public class PropertiesReader
 		return user_workspace + propval;
 	}
 
+
+	
 		
 	
 	
